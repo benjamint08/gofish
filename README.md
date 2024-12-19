@@ -4,11 +4,7 @@ an email client for the command line, written in Go
 
 ## Installation
 
-1. You can download the latest release from the [releases page](https://github.com/benjamint08/gofish/releases)
-
-OR 
-
-2. Install from source:
+1. Install from source:
 
 ```bash
 git clone https://github.com/benjamint08/gofish.git
