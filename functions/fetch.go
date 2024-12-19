@@ -8,6 +8,7 @@ import (
 	"log"
 	"mime"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -31,27 +32,17 @@ func StartFetch() {
 		fmt.Println("Available fetch functions:")
 		fmt.Println("    help: show this help message")
 		fmt.Println("Usage of fetch:")
-		fmt.Println("    <profile_name>")
-		fmt.Println("    leave empty for all profiles")
+		fmt.Println("    <amount>")
 		os.Exit(0)
 	}
-	userWantsProfile := false
-	profileToFetch := ""
-	if len(args) > 1 {
-		userWantsProfile = true
-		profileToFetch = args[1]
+	amountOfEmailsToFetch := 20
+	if fetchFunction != "nothing" {
+		amountOfEmailsToFetch, _ = strconv.Atoi(fetchFunction)
 	}
 	imapProfiles := CheckImapProfilesFile()
 	collectionOfMessages := []Email{}
 	for _, profile := range imapProfiles {
-		if userWantsProfile {
-			if profile.(map[string]interface{})["name"] == profileToFetch {
-				collectionOfMessages = append(fetchEmails(profile.(map[string]interface{}), 20), collectionOfMessages...)
-				break
-			}
-		} else {
-			collectionOfMessages = append(fetchEmails(profile.(map[string]interface{}), 20), collectionOfMessages...)
-		}
+		collectionOfMessages = append(fetchEmails(profile.(map[string]interface{}), amountOfEmailsToFetch), collectionOfMessages...)
 	}
 	fmt.Println("| For | From | Subject | Body |")
 	for _, message := range collectionOfMessages {
@@ -87,7 +78,7 @@ func fetchEmails(profile map[string]interface{}, numberOfEmailsToFetch int) []Em
 	}
 
 	seqSet := imap.SeqSet{}
-	convertThatToUint := uint32(numberOfEmailsToFetch) + 1
+	convertThatToUint := uint32(numberOfEmailsToFetch) - 1
 	seqSet.AddRange(selectedMbox.NumMessages-convertThatToUint, selectedMbox.NumMessages)
 	fetchOptions := &imap.FetchOptions{
 		Envelope:      true,
